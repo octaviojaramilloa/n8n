@@ -19,4 +19,4 @@ RUN chown -R node:node /home/node/.n8n
 USER node
 
 # Start command (absolute binary path to avoid PATH issues)
-CMD ["/usr/local/bin/n8n", "start"]
+CMD ["n8n", "start"]
