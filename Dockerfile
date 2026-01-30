@@ -1,22 +1,29 @@
-# Use the official latest n8n image as base
-FROM n8nio/n8n:latest
+# Usa una versión estable de n8n (evita "latest" para tener builds reproducibles)
+FROM n8nio/n8n:1.66.1
 
-# Render settings: dynamic port and correct binding
-ENV N8N_PORT=${PORT}
-ENV N8N_HOST=0.0.0.0
-ENV N8N_PROTOCOL=https
-
-# Ensure PATH (in case the runtime shell/user doesn't inherit PATH as expected)
-ENV PATH="/usr/local/bin:${PATH}"
-
-# Standard n8n data folder
-ENV N8N_USER_FOLDER=/home/node/.n8n
-
-# Make sure the folder exists and belongs to 'node'
+# Cambiar a root para instalar paquetes del sistema
 USER root
-RUN mkdir -p /home/node/.n8n
-RUN chown -R node:node /home/node/.n8n
+
+# Instalar Graphviz (proporciona el comando `dot`)
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends graphviz \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# ====== (Opcional) Config que ya tenías; mantenla si la necesitas ======
+# Variables que ya usabas (si te sirven, puedes dejarlas)
+# ENV N8N_HOST=<tu-host>
+# ENV N8N_PORT=0.0.0.0
+# ENV N8N_PROTOCOL=https
+# ENV N8N_WEBHOOK_URL=<tu-webhook-url>
+
+# Crear directorio de trabajo (si lo usabas)
+# RUN mkdir -p /home/node/.n8n \
+#  && chown -R node:node /home/node/.n8n
+
+# Volver al usuario por defecto para ejecutar n8n
 USER node
 
-# Start command (absolute binary path to avoid PATH issues)
+# Comando de inicio (la imagen ya trae "n8n start" por defecto,
+# pero si quieres mantenerlo explícito, puedes dejarlo)
 CMD ["n8n", "start"]
